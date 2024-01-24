@@ -1,8 +1,9 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, Grid } from '@mui/material';
 import D3Chart from './charts/D3Chart';
-import CreditScoreDonutChart from './charts/CreditScoreDonutChart';
+import { Divider } from '@mui/material';
 import { DonutBarplotTransition } from './charts/DonutBarPlotTransition';
+import ChatBot from './chatbot/ChatBot';
 
 const Home: React.FC = () => {
     // Sample data for D3 chart
@@ -26,9 +27,10 @@ const Home: React.FC = () => {
             </AppBar>
             <Grid container spacing={2} style={{ marginTop: '20px', padding: '20px' }}>
                 <Grid item xs={12} md={3}>
-                    <Typography variant="h6">Chatbot</Typography>
-                    {/* Place your chatbot component here */}
+                    <ChatBot></ChatBot>
+                    
                 </Grid>
+               
                 <Grid item xs={12} md={9}>
                     <Typography variant="h6">Graphs</Typography>
                     {/* <CreditScoreDonutChart data={creditScoreData}></CreditScoreDonutChart> */}
