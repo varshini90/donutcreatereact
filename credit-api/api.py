@@ -1,10 +1,14 @@
-from flask import Flask, request, jsonify
+import json
+from flask import Flask, request, jsonify,Response
 from flask_cors import CORS
 import mysql.connector
 from mysql.connector import Error
 from datetime import datetime
-
+from openai import OpenAI
+import time
+import os
 app = Flask(__name__)
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 CORS(app)
 
 
@@ -134,6 +138,40 @@ def login():
         return jsonify({"message": "Login successful"}), 200
     else:
         return jsonify({"message": "Invalid username or password"}), 401
+    
+@app.route('/loadChartData', methods=['GET'])
+def load_data():
+    response = client.chat.completions.create(
+    model='gpt-3.5-turbo-1106',
+    response_format={ 'type': 'json_object' },
+    messages=[
+        {'role': 'system', 'content': 'You are a helpful assistant designed to output JSON. I want to create an application that analyses credit scoring distribution across countries of world. For the countries that doesnot have credit scoring system give response as not available. Need information for all the countries exsiting in world. '},
+        {'role': 'user', 'content': 'Generate credit scoring distribution range for each country in format json format like this "distributition": [{"country":"United States of America" , "code":"US","scores" : [{"grade":"Excellent","range":[800,900]}] }] '}
+    ]
+    )
+    return response.choices[0].message.content
+    
+@app.route('/chatbot', methods=['POST'])
+def get_ai_response():
+    data = request.json
+    history = data.get('history')
+    query = data.get('query') + ' Generate reponse in format of JSON as {"message" : "question  that has to be asked", "type": "query"} or {"message" : "question  that has to be asked score is 678", "type": "score", "score":578} Based on the sore generated.'
+    if history == '':
+        history = 'You are a helpful assistant designed to output JSON.You are a helpful assistant designed to help understand credit score systems. For the given prompts, ask user next set of questions till it is good to analyse credit score based on parameters like annual income, existing loans, country, age, existing credit score ..etc. Gather credit scoring distribution range for each country that has data vavailable publicly, based on the input given by user generate a probable credit score. Ask user only questions about annual income, existing loans, country, age, existing credit score and provide probable credit score and analysis what would have got the score up or down. Ask maximum of 5 questions to analyse the score'
+    response = client.chat.completions.create(
+            model='gpt-3.5-turbo-1106',
+            response_format={ 'type': 'json_object' },
+            messages=[
+                {'role': 'system', 'content': history},
+                {'role': 'user', 'content': query},
+            ]
+        )
+
+        # Assuming response.choices[0].message.content contains the response text
+        # Split the response into chunks
+    chunks = response.choices[0].message.content.split('. ')
+    return response.choices[0].message.content      
+                
 
 if __name__ == '__main__':
     app.run(port=8000,debug=True)

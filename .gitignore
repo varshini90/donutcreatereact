@@ -2,4 +2,4 @@
 .DS_store
 
 # Ignore node_modules folder
-credit-ui/node_modules
+credit-ui/node_modules 
