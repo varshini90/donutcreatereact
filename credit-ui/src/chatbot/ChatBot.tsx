@@ -31,7 +31,7 @@ interface ChildProps {
 
 const ChatBot: React.FC<ChildProps>= (props: ChildProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const mainContext = 'You are a helpful assistant designed to output JSON.You are a helpful assistant designed to help understand credit score systems. For the given prompts, ask user next set of questions till it is good to analyse credit score based on parameters like annual income, existing loans, country, age, existing credit score ..etc. Gather credit scoring distribution range for each country that has data vavailable publicly, based on the input given by user generate a probable credit score. Ask user only questions about annual income, existing loans, country, age, existing credit score and provide probable credit score and analysis what would have got the score up or down. Ask maximum of 5 questions to analyse the score';
+  const mainContext = 'You are a helpful assistant designed to output JSON.You are a helpful assistant designed to help understand credit score systems and provide probable credit score after asking user these 5 questions 1. Annual Income 2. Resding Country 3. Existing Credit Score 4. Existing Loans, 5. Highest education level. Analyse and give a probable credit score based on the region user belongs to. Give a analysis on why the credit score is impacted';
   const [inputText, setInputText] = useState('');
   const oldHistory: any = localStorage.getItem('queryHistory')  !== null ? localStorage.getItem('queryHistory') : [];
   // Apply typewriter effect to the current bot message

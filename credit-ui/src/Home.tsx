@@ -3,7 +3,8 @@ import { AppBar, Toolbar, Typography, Grid } from '@mui/material';
 import axios from 'axios';
 import ChatBot from './chatbot/ChatBot';
 import { Analysis } from './chatbot/ChatBot';
-import DonutChart from './charts/D3DonutChart';
+import DonutChart, {ScoreItem,DonutChartProps} from './charts/DonutChart';
+import d3Data  from './data/d3.json'
 
 const Home: React.FC = () => {
     // Sample data for D3 chart
@@ -15,17 +16,23 @@ const Home: React.FC = () => {
       { name: 'Bad', value: 5 }
     ];
 
+    
+
 
 
     const [analysis, setAnalysis] =  useState<Analysis>();
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
+    const [region, setRegion] = useState<string>('US');
+    const [regionData, setRegionData] = useState<ScoreItem[]>([]);
+    const [creditScore, setCreditScore] = useState<any>(null);
 
   
 
   const handleScore = (analysis: Analysis) => {
     setAnalysis(analysis);
+    setCreditScore(analysis.score);
   };
 
     useEffect(() => {
@@ -35,6 +42,16 @@ const Home: React.FC = () => {
             const response = await axios.get('/api/loadChartData');
             setData(response.data); // Set the data from the response to your state
             setLoading(false); // Set loading to false since the data has been fetched
+
+
+            const distribution = response.data.distribution;
+            if (distribution) {
+              const scores = response.data.distribution.filter((value: any) => {return value.code === region})[0].scores;
+              console.log(scores);
+              setRegionData(scores);
+            }
+            
+
           } catch (error) {
             if (axios.isAxiosError(error)) {
               // Handle Axios-specific error
@@ -47,7 +64,7 @@ const Home: React.FC = () => {
           }
         };
     
-     //   fetchData();
+        fetchData();
       }, []); // The empty arra
   
 
@@ -65,7 +82,7 @@ const Home: React.FC = () => {
                     <ChatBot onScoreGenerated={handleScore}></ChatBot>  
                 </Grid>
                 <Grid item xs={12} md={9} id="ChartGrid">
-                   <DonutChart data={creditScoreData}></DonutChart>
+                   <DonutChart scores={regionData} width={1000} creditScore={creditScore}></DonutChart>
                 </Grid>
             </Grid>
         </div>
